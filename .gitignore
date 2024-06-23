@@ -1,0 +1,11 @@
+# data
+data
+
+# unused scripts
+playground.py
+
+# PyCharm files
+.idea/
+
+# macOS files
+.DS_Store
