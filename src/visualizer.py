@@ -1,5 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+from metrics import compute_detection_metrics
 
 
 def plot_boxes(image: np.ndarray, gt_box: tuple, pred_box: tuple) -> None:
@@ -40,3 +43,27 @@ def plot_boxes(image: np.ndarray, gt_box: tuple, pred_box: tuple) -> None:
 
     plt.axis('off')
     plt.show()
+
+
+def plot_iou_distribution(dataset_df: pd.DataFrame, class_type: str = None) -> None:
+    # plot the IoU distribution
+    plt.figure(figsize=(10, 6))
+    sns.histplot(dataset_df['iou'], bins=30, kde=True)
+    if class_type:
+        plt.title(f'IoU distribution for class "{class_type}"')
+    else:
+        plt.title(f'IoU distribution')
+    plt.xlabel('IoU')
+    plt.ylabel('Frequency')
+    plt.show()
+
+
+def detection_report(dataset_df: pd.DataFrame, class_type: str = None) -> None:
+    accuracy, precision, recall, f1 = compute_detection_metrics(dataset_df=dataset_df)
+
+    print(f'Accuracy: {accuracy:.2f}')
+    print(f'Precision: {precision:.2f}')
+    print(f'Recall: {recall:.2f}')
+    print(f'F1 Score: {f1:.2f}')
+
+    plot_iou_distribution(dataset_df=dataset_df, class_type=class_type)

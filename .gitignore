@@ -1,10 +1,11 @@
-# data
-data
+# data
+data/
 
 # unused scripts
 playground.py
 
 # PyCharm files
+**/__pycache__/
 .idea/
 
 # macOS files

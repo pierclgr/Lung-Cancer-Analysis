@@ -58,6 +58,6 @@ def load_dataset(dataset_folder: str, dataset_file: str = "inference-data.csv",
 
     # remove not useful columns
     dataset_df = dataset_df.drop(
-        columns=["scan-name", "nodule-image-size-x", "nodule-image-size-y", "nodule-image-name", "gt-composition"])
+        columns=["scan-name", "nodule-image-size-x", "nodule-image-size-y", "nodule-image-name"])
 
     return dataset_df
