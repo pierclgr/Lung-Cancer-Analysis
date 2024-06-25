@@ -6,6 +6,24 @@ from src.metrics import compute_detection_metrics
 
 
 def visualize_few_samples(dataset_df: pd.DataFrame, n_samples: int = 5, random_state: int = 42) -> None:
+    """
+    Function that visualizes few samples from the dataset, plotting the image and the prediction and ground truth
+    bounding boxes.
+
+    Parameters
+    ----------
+    dataset_df: pd.DataFrame
+        The dataframe representing the dataset to visualize.
+    n_samples: int
+        The number of samples to draw from the dataset (defaults to 5).
+    random_state: int
+        The seed of the random number generator (defaults to 42).
+
+    Returns
+    -------
+    None
+    """
+
     # sample some elements from the dataframe to visualize
     samples_to_visualize = dataset_df.sample(n=n_samples, random_state=random_state)
 
@@ -58,6 +76,21 @@ def plot_boxes(image: np.ndarray, gt_box: tuple, pred_box: tuple) -> None:
 
 
 def plot_iou_distribution(dataset_df: pd.DataFrame, class_type: str = None) -> None:
+    """
+    Function that plots the IoU distribution of a dataset.
+
+    Parameters
+    ----------
+    dataset_df: pd.DataFrame
+        The dataframe representing the dataset.
+    class_type: str
+        The class type of the samples to consider in the plot (default is None).
+
+    Returns
+    -------
+    None
+    """
+
     # plot the IoU distribution
     plt.figure(figsize=(10, 6))
     sns.histplot(dataset_df['iou'], bins=30, kde=True)
@@ -71,6 +104,22 @@ def plot_iou_distribution(dataset_df: pd.DataFrame, class_type: str = None) -> N
 
 
 def detection_report(dataset_df: pd.DataFrame, class_type: str = None) -> None:
+    """
+    Function that prints a detection report for a given dataset.
+
+    Parameters
+    ----------
+    dataset_df: pd.DataFrame
+        The dataframe to use for the detection report.
+    class_type: str
+        The class type to consider in the plot data (defaults to None).
+
+    Returns
+    -------
+    None
+    """
+
+    # compute detection metric for the given dataset
     accuracy, precision, recall, f1, tp, fp, tn, fn, errors = compute_detection_metrics(dataset_df=dataset_df)
 
     print(f'Accuracy: {accuracy:.2f}')

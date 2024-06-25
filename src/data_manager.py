@@ -14,7 +14,7 @@ def load_image(image_file_name: str, dataset_images_folder: pathlib.Path, file_f
     dataset_images_folder: pathlib.Path
         The path of the folder containing the images.
     file_format: str
-        The file format of the image files. Defaults to ".npy".
+        The file format of the image files (defaults to ".npy").
 
     Returns
     -------
@@ -35,9 +35,9 @@ def load_dataset(dataset_folder: str, dataset_file: str = "inference-data.csv",
     dataset_folder: str
         The path of the folder containing the dataset data.
     dataset_file: str
-        The name of the file containing the dataset data.
+        The name of the file containing the dataset data (defaults to "inference-data.csv").
     dataset_images_folder: str
-        The name of the folder containing the image data.
+        The name of the folder containing the image data (defaults to "image-data").
 
     Returns
     -------

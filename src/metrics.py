@@ -48,6 +48,20 @@ def iou(gt_box: tuple, pred_box: tuple) -> float:
 
 
 def compute_iou_dataset(dataset_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Function that adds an IoU column to a DataFrame representing an object detection dataset.
+
+    Parameters
+    ----------
+    dataset_df: pd.DataFrame
+        The dataset that contains the object detection predicted and ground truth boxes.
+
+    Returns
+    -------
+    pd.DataFrame
+        The dataset with the IoU column added to it.
+    """
+
     # compute IoU for all samples in the dataset, adding a column to the dataframe
     dataset_df['iou'] = dataset_df.apply(lambda row: iou(
         (row['gt-x-start'], row['gt-x-end'], row['gt-y-start'], row['gt-y-end']),
@@ -58,6 +72,22 @@ def compute_iou_dataset(dataset_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def compute_detection_predictions(dataset_df: pd.DataFrame, detection_iou_threshold: float = 0.5) -> pd.DataFrame:
+    """
+    Function that computes detection predictions accordingly to a given IoU threshold.
+
+    Parameters
+    ----------
+    dataset_df: pd.Dataframe
+        The DataFrame of the dataset that contains the object detection predictions and ground truths.
+    detection_iou_threshold: float
+        The IoU threshold to use for computing the detection predictions (defaults to 0.5).
+
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with the predictions of the detections added.
+    """
+
     # the sample is detected if the IoU between the predicted and the ground truth bounding box is greater than the
     # threshold
     df_copy = dataset_df.copy()
@@ -67,6 +97,29 @@ def compute_detection_predictions(dataset_df: pd.DataFrame, detection_iou_thresh
 
 
 def compute_detection_metrics(dataset_df: pd.DataFrame) -> Tuple:
+    """
+    Function that computes detection metrics using the given DataFrame representing the dataset.
+
+    Parameters
+    ----------
+    dataset_df: pd.DataFrame
+        The DataFrame of the dataset that contains the object detection predictions and ground truths.
+
+    Returns
+    -------
+    tuple
+        A tuple containing
+        - accuracy
+        - precision
+        - recall
+        - f1
+        - number of true positives
+        - number of false positives
+        - number of true negatives
+        - number of false negatives
+        - a dictionary containing bounding boxes errors averages
+    """
+
     # select detection predictions
     y_pred = dataset_df['pred-detected']
 
