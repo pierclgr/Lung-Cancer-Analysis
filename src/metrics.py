@@ -47,18 +47,23 @@ def iou(gt_box: tuple, pred_box: tuple) -> float:
     return iou
 
 
-def compute_detection_predictions(dataset_df: pd.DataFrame, detection_iou_threshold: float = 0.5) -> pd.DataFrame:
+def compute_iou_dataset(dataset_df: pd.DataFrame) -> pd.DataFrame:
     # compute IoU for all samples in the dataset, adding a column to the dataframe
     dataset_df['iou'] = dataset_df.apply(lambda row: iou(
         (row['gt-x-start'], row['gt-x-end'], row['gt-y-start'], row['gt-y-end']),
         (row['pred-x-start'], row['pred-x-end'], row['pred-y-start'], row['pred-y-end'])
     ), axis=1)
 
+    return dataset_df
+
+
+def compute_detection_predictions(dataset_df: pd.DataFrame, detection_iou_threshold: float = 0.5) -> pd.DataFrame:
     # the sample is detected if the IoU between the predicted and the ground truth bounding box is greater than the
     # threshold
-    dataset_df['pred-detected'] = dataset_df['iou'] > detection_iou_threshold
+    df_copy = dataset_df.copy()
+    df_copy['pred-detected'] = dataset_df['iou'] > detection_iou_threshold
 
-    return dataset_df
+    return df_copy
 
 
 def compute_detection_metrics(dataset_df: pd.DataFrame) -> Tuple:
@@ -69,10 +74,46 @@ def compute_detection_metrics(dataset_df: pd.DataFrame) -> Tuple:
     # been detected, the array is going to be an array of true values with the same number of samples as in the dataset
     y_true = np.full(len(dataset_df), True)
 
+    # compute the number of TP, FP and FN
+    # True Positives (TP)
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+
+    # False Positives (FP)
+    fp = np.sum((y_true == 0) & (y_pred == 1))
+
+    # True Negatives (TN)
+    tn = np.sum((y_true == 0) & (y_pred == 0))
+
+    # False Negatives (FN)
+    fn = np.sum((y_true == 1) & (y_pred == 0))
+
     # compute accuracy, precision, recall and f1 scores
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred)
     recall = recall_score(y_true, y_pred)
     f1 = f1_score(y_true, y_pred)
 
-    return accuracy, precision, recall, f1
+    samples = dataset_df[dataset_df["pred-detected"]]
+
+    # calculate Mean Absolute Error (MAE) and Mean Squared Error (MSE) for bounding box coordinates
+    mae_x_start = np.mean(np.abs(samples['gt-x-start'] - samples['pred-x-start']))
+    mae_x_end = np.mean(np.abs(samples['gt-x-end'] - samples['pred-x-end']))
+    mae_y_start = np.mean(np.abs(samples['gt-y-start'] - samples['pred-y-start']))
+    mae_y_end = np.mean(np.abs(samples['gt-y-end'] - samples['pred-y-end']))
+
+    mse_x_start = np.mean((samples['gt-x-start'] - samples['pred-x-start']) ** 2)
+    mse_x_end = np.mean((samples['gt-x-end'] - samples['pred-x-end']) ** 2)
+    mse_y_start = np.mean((samples['gt-y-start'] - samples['pred-y-start']) ** 2)
+    mse_y_end = np.mean((samples['gt-y-end'] - samples['pred-y-end']) ** 2)
+
+    errors = {'Mean Absolute Error (MAE) for x_start': mae_x_start,
+              'Mean Absolute Error (MAE) for x_end': mae_x_end,
+              'Mean Absolute Error (MAE) for y_start': mae_y_start,
+              'Mean Absolute Error (MAE) for y_end': mae_y_end,
+
+              'Mean Squared Error (MSE) for x_start': mse_x_start,
+              'Mean Squared Error (MSE) for x_end': mse_x_end,
+              'Mean Squared Error (MSE) for y_start': mse_y_start,
+              'Mean Squared Error (MSE) for y_end': mse_y_end}
+
+    return accuracy, precision, recall, f1, tp, fp, tn, fn, errors

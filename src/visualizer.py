@@ -2,7 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-from metrics import compute_detection_metrics
+from src.metrics import compute_detection_metrics
+
+
+def visualize_few_samples(dataset_df: pd.DataFrame, n_samples: int = 5, random_state: int = 42) -> None:
+    # sample some elements from the dataframe to visualize
+    samples_to_visualize = dataset_df.sample(n=n_samples, random_state=random_state)
+
+    # plot the samples image with the bounding boxes
+    for index, sample in samples_to_visualize.iterrows():
+        plot_boxes(sample["image-data"],
+                   (sample['gt-x-start'], sample['gt-x-end'], sample['gt-y-start'], sample['gt-y-end']),
+                   (sample['pred-x-start'], sample['pred-x-end'], sample['pred-y-start'],
+                    sample['pred-y-end']))
 
 
 def plot_boxes(image: np.ndarray, gt_box: tuple, pred_box: tuple) -> None:
@@ -28,7 +40,7 @@ def plot_boxes(image: np.ndarray, gt_box: tuple, pred_box: tuple) -> None:
     xa_pred, xb_pred, ya_pred, yb_pred = pred_box
 
     # plot the image
-    plt.figure(figsize=(16, 16))
+    plt.figure(figsize=(8, 8))
     plt.imshow(image, cmap='gray')
 
     # plot ground truth bounding box in red
@@ -59,11 +71,18 @@ def plot_iou_distribution(dataset_df: pd.DataFrame, class_type: str = None) -> N
 
 
 def detection_report(dataset_df: pd.DataFrame, class_type: str = None) -> None:
-    accuracy, precision, recall, f1 = compute_detection_metrics(dataset_df=dataset_df)
+    accuracy, precision, recall, f1, tp, fp, tn, fn, errors = compute_detection_metrics(dataset_df=dataset_df)
 
     print(f'Accuracy: {accuracy:.2f}')
     print(f'Precision: {precision:.2f}')
     print(f'Recall: {recall:.2f}')
     print(f'F1 Score: {f1:.2f}')
+    print(f'Total samples: {len(dataset_df)}')
+    print(f'True Positives: {tp}')
+    print(f'False Positives: {fp}')
+    print(f'True Negatives: {tn}')
+    print(f'False Negatives: {fn}')
+    for key, value in errors.items():
+        print(f'{key}: {value:.2f}')
 
     plot_iou_distribution(dataset_df=dataset_df, class_type=class_type)

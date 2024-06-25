@@ -1,5 +1,6 @@
 # data
 data/
+*.zip
 
 # unused scripts
 playground.py
